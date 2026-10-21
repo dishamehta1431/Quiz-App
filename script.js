@@ -1,0 +1,215 @@
+const quizQuestions = [
+  {
+    question: "Which keyword is used to declare a variable in JavaScript?",
+    options: ["var", "int", "string", "float"],
+    correctAnswerIndex: 0,
+  },
+  {
+    question: "Which method adds an element to the end of an array?",
+    options: ["pop()", "push()", "shift()", "unshift()"],
+    correctAnswerIndex: 1,
+  },
+  // {
+  //   question: "What is the output of typeof 'Hello'?",
+  //   options: ["number", "boolean", "string", "object"],
+  //   correctAnswerIndex: 2,
+  // },
+  // {
+  //   question: "Which symbol is used for strict equality?",
+  //   options: ["=", "==", "===", "!="],
+  //   correctAnswerIndex: 2,
+  // },
+  // {
+  //   question: "Which method removes the last element from an array?",
+  //   options: ["shift()", "pop()", "slice()", "splice()"],
+  //   correctAnswerIndex: 1,
+  // },
+  // {
+  //   question: "What is the output of 2 + '3'?",
+  //   options: ["5", "23", "NaN", "undefined"],
+  //   correctAnswerIndex: 1,
+  // },
+  // {
+  //   question:
+  //     "Which keyword declares a block-scoped variable that cannot be reassigned?",
+  //   options: ["var", "let", "const", "static"],
+  //   correctAnswerIndex: 2,
+  // },
+  // {
+  //   question: "Which method converts a JSON string into a JavaScript object?",
+  //   options: [
+  //     "JSON.stringify()",
+  //     "JSON.parse()",
+  //     "JSON.convert()",
+  //     "JSON.object()",
+  //   ],
+  //   correctAnswerIndex: 1,
+  // },
+  // {
+  //   question:
+  //     "Which array method creates a new array by transforming each element?",
+  //   options: ["filter()", "forEach()", "map()", "find()"],
+  //   correctAnswerIndex: 2,
+  // },
+  // {
+  //   question: "What does Boolean(0) return?",
+  //   options: ["true", "false", "0", "undefined"],
+  //   correctAnswerIndex: 1,
+  // },
+];
+
+const qns = document.getElementById("qns");
+const qnsNum = document.getElementById("qnsNum");
+const options = document.getElementById("options");
+const nextBtn = document.getElementById("nextBtn");
+const timerText = document.getElementById("timeLeft");
+
+let currentIndex = 0;
+let score = 0;
+let selectedAnswer = null;
+let userAnswers = [];
+let timer = null;
+let timeLeft = 30;
+let questionAnswered = false;
+
+// Display current question
+function displayQuestion() {
+  clearInterval(timer);
+
+  const currentQns = quizQuestions[currentIndex];
+
+  selectedAnswer = null;
+  questionAnswered = false;
+
+  qns.innerText = currentQns.question;
+
+  qnsNum.innerText = `Qns ${currentIndex + 1}/${quizQuestions.length}`;
+
+  options.innerHTML = "";
+
+  currentQns.options.forEach((option, index) => {
+    const col = document.createElement("div");
+    col.classList.add("col-md-6");
+
+    const btn = document.createElement("button");
+    btn.classList.add("btn", "btn-outline-primary", "option-btn", "w-100");
+
+    btn.innerText = option;
+    btn.type = "button";
+
+    btn.onclick = function () {
+      if (questionAnswered) return;
+
+      selectedAnswer = index;
+      nextQns(index);
+    };
+
+    col.appendChild(btn);
+    options.appendChild(col);
+  });
+
+  startTimer();
+}
+
+// Start 30-second timer
+function startTimer() {
+  clearInterval(timer);
+
+  timeLeft = 30;
+  timerText.innerText = `Time Left: ${timeLeft}`;
+
+  timer = setInterval(() => {
+    timeLeft--;
+
+    timerText.innerText = `Time Left: ${timeLeft}`;
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      nextQns(null);
+    }
+  }, 1000);
+}
+
+// Save each question only once and move to next
+function nextQns(answerIndex = selectedAnswer) {
+  if (questionAnswered) return;
+
+  questionAnswered = true;
+  clearInterval(timer);
+
+  const currentQns = quizQuestions[currentIndex];
+
+  // Save this question's answer exactly once
+  userAnswers.push({
+    qns: currentQns.question,
+    selectedAnswer: answerIndex,
+    options: currentQns.options,
+    correctAnswer: currentQns.correctAnswerIndex,
+  });
+
+  // Calculate score
+  if (answerIndex === currentQns.correctAnswerIndex) {
+    score++;
+  }
+
+  selectedAnswer = null;
+
+  if (currentIndex < quizQuestions.length - 1) {
+    currentIndex++;
+    displayQuestion();
+  } else {
+    quizResult();
+  }
+}
+
+// Show final result and review summary
+
+function quizResult() {
+  const quizResult = document.querySelector(".quiz-card");
+
+  quizResult.innerHTML = `
+  
+  <h2 class="text-center mt-1">Quiz Result 🎉</h2>
+
+  <h3 class="text-center">${score}/${quizQuestions.length}</h3>
+
+  <div >
+
+    <h3 class="text-center">✏️ Review Summary</h3>
+
+    <ul class="list-group">
+      ${userAnswers.map((ans, index) => {
+        return `
+        
+        <li class="list-group-item">
+        
+          <h5 class="text-center">
+            Question No:- ${index + 1} ${ans.qns}
+          </h5>
+
+          <h6 class="text-center">
+            Your Answer:- ${
+              ans.selectedAnswer !== null
+                ? ans.options[ans.selectedAnswer]
+                : "Not Selected"
+            }
+          </h6>
+
+          <h6 class="text-center">
+            Correct Answer:- ${ans.options[ans.correctAnswer]}
+          </h6>
+        
+        </li>
+        
+        `;
+      })}
+
+    </ul>
+
+  </div>
+
+  `;
+} 
+
+// Start quiz
+displayQuestion();
