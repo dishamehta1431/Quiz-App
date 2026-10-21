@@ -4,7 +4,8 @@ A simple and interactive Quiz App built using HTML, CSS, Bootstrap 5, and JavaSc
 
 ## 📸 Project Screenshot
 
-![Quiz App Screenshot](Quiz%20App.png)
+
+<img width="1366" height="672" alt="Quiz App" src="https://github.com/user-attachments/assets/29aea698-ef20-47ae-94c1-6b4e3b7e9d65" />
 
 ## ✨ Features
 
